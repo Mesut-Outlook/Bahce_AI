@@ -1,0 +1,34 @@
+# Gizli anahtarlar — ASLA repoya girmez
+.env
+*.key
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.egg-info/
+
+# Veri ve modeller (büyük dosyalar — git'e değil)
+data/raw/*
+data/labeled/*
+data/processed/*
+!data/raw/.gitkeep
+!data/labeled/.gitkeep
+!data/processed/.gitkeep
+models/*.tflite
+models/*.h5
+models/*.pt
+models/*.onnx
+
+# Notebook checkpoint
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs and temp files
+*.log
+.streamlit/
+
