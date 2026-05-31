@@ -61,3 +61,30 @@ fotoğraf, eğitimde ~500–750 etkisi yapar.
 Ham fotoğraflar `data/raw/` içine. Etiketleme `data/labeled/`'da yapılır
 (bkz. `03-etiketleme-standardi.md`). Ham klasörü asla silme — yeniden etiketleme
 gerekirse lazım olur.
+
+## 🤖 Web'den Otomatik Veri Toplama (iNaturalist API)
+
+Bahçeden çekilen fotoğrafları desteklemek ve eğitim veri setini hızla zenginleştirmek amacıyla **iNaturalist API** sorgulama aracını kullanabilirsiniz. Bu araç sadece uzmanlarca onaylanmış (research-grade) ve açık lisanslı (Creative Commons) doğa fotoğraflarını otomatik olarak indirir.
+
+### İndirme Aracı:
+`scripts/download_inaturalist.py`
+
+### Yaygın Türlerin Taxon ID'leri:
+*   **Zeytin (Olea europaea):** `55909`
+*   **Zeytin Sineği (Bactrocera oleae):** `321727`
+*   **Nar (Punica granatum):** `59800`
+*   **İncir (Ficus carica):** `53133`
+*   **Narenciye (Citrus cinsi):** `54406`
+
+### Örnek Çalıştırma Komutları:
+```bash
+# 50 adet sağlıklı zeytin görseli indir
+python scripts/download_inaturalist.py --taxon 55909 --limit 50 --out zeytin_saglikli
+
+# 30 adet zeytin sineği zararlısı görseli indir
+python scripts/download_inaturalist.py --taxon 321727 --limit 30 --out zeytin_zeytin-sinegi
+
+# Belirli bir arama kelimesi (halkalı leke latincesi) ile aratarak indir
+python scripts/download_inaturalist.py --query "Spilocaea oleagina" --limit 20 --out zeytin_halkali-leke
+```
+

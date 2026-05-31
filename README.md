@@ -35,20 +35,19 @@ Sonra şunları deneyebilirsin:
 | `data/raw/` | Çektiğin ham fotoğraflar buraya |
 | `data/labeled/` | Etiketlenmiş fotoğraflar (sınıf klasörleri) |
 | `models/` | Eğitilmiş modeller |
-| `app/prototype/` | Bugün çalışan hızlı analiz prototipi (Claude API) |
-| `scripts/` | Veri hazırlama araçları |
+| `app/prototype/` | Bugün çalışan hızlı analiz web & CLI prototipleri (OpenAI & Claude API) |
+| `scripts/` | Veri hazırlama, API'den otomatik indirme ve sunucu başlatıcı araçları |
 | `.claude/agents/` | 5 uzman sub-agent |
 | `.claude/commands/` | Hazır workflow'lar (slash komutları) |
 
 ## 🗺️ Yol haritası
 
-1. **Faz 0 — Prototip (1 gün):** `app/prototype/` ile Claude API kullanarak hemen
-   çalışan bir analiz aracı. Veri toplamadan önce konsepti test et.
-2. **Faz 1 — Veri toplama (sezon boyu):** `docs/02-veri-toplama-rehberi.md`'ye göre
-   bahçeden sistematik fotoğraf çek.
+1. **Faz 0 — Prototip (Tamamlandı ✅):** `app/prototype/` altında sürükle-bırak destekli, OpenAI & Claude entegrasyonlu Streamlit web arayüzü ve tünel sistemi hazırlandı. Streamlit Cloud yayınına uyumlu hale getirildi.
+2. **Faz 1 — Veri toplama (sezon boyu):** `docs/02-veri-toplama-rehberi.md` ve `scripts/download_inaturalist.py` kullanarak veri topla.
 3. **Faz 2 — Etiketleme:** `docs/03-etiketleme-standardi.md`'ye göre etiketle.
 4. **Faz 3 — Model eğitimi:** Transfer learning ile kendi modelini eğit.
 5. **Faz 4 — Uygulama:** Telefon/web aracı haline getir.
+
 
 ## 📚 Önce bunları oku
 
