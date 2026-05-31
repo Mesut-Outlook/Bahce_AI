@@ -16,10 +16,12 @@ except ImportError:
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 # Streamlit Cloud secrets desteği
-if hasattr(st, "secrets"):
+try:
     for key in ["OPENAI_API_KEY", "ANTHROPIC_API_KEY"]:
         if key in st.secrets and not os.environ.get(key):
             os.environ[key] = st.secrets[key]
+except Exception:
+    pass
 
 # Sayfa Yapılandırması (Premium Görünüm)
 st.set_page_config(
