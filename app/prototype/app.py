@@ -12,8 +12,14 @@ except ImportError:
     print("Eksik paketler var. Lütfen kurun: pip install streamlit python-dotenv pillow")
     sys.exit(1)
 
-# Proje kökündeki .env dosyasını yükle
+# Yerel .env yükle (Streamlit Cloud'da bu dosya olmaz, secrets kullanılır)
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
+
+# Streamlit Cloud secrets desteği
+if hasattr(st, "secrets"):
+    for key in ["OPENAI_API_KEY", "ANTHROPIC_API_KEY"]:
+        if key in st.secrets and not os.environ.get(key):
+            os.environ[key] = st.secrets[key]
 
 # Sayfa Yapılandırması (Premium Görünüm)
 st.set_page_config(
