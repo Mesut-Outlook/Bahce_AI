@@ -4,7 +4,7 @@
 cd "$(dirname "$0")/.."
 
 echo "=============================================="
-echo "🫒 Zeytin & Meyve Bahçesi AI Başlatıcı"
+echo "🌿 Bahçe AI Başlatıcı"
 echo "=============================================="
 echo ""
 
@@ -42,7 +42,7 @@ STREAMLIT_PID=$!
 sleep 3
 
 # Bilgisayarın yerel ağ IP adresini bul
-LOCAL_IP=$(hostname -I | awk '{print $1}')
+LOCAL_IP=$(ip addr show | grep "inet " | grep -v "127.0.0.1" | awk '{print $2}' | cut -d/ -f1 | head -1)
 echo ""
 echo "=============================================="
 echo "📶 YEREL AĞ BAĞLANTISI (Aynı Wi-Fi üzerindeki cihazlar için):"
@@ -52,17 +52,12 @@ echo ""
 
 # Telefonundan her yerden (bahçeden) girmek için SSH Tüneli oluştur (localhost.run servisi ile)
 echo "🌐 Telefonla internet üzerinden (her yerden) erişim için güvenli tünel kuruluyor..."
-ssh -o StrictHostKeyChecking=no -R 80:localhost:8501 nokey@localhost.run > ../../tunnel.log 2>&1 &
+ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -tt -R 80:localhost:8501 nokey@localhost.run > ../../tunnel.log 2>&1 &
 TUNNEL_PID=$!
 
 # Tünel linkinin üretilmesi için bekle ve loglardan linki oku
-sleep 5
-TUNNEL_URL=$(grep -o -E "https://[a-zA-Z0-9.-]+\.lhr\.life" ../../tunnel.log | head -n 1)
-
-if [ -z "$TUNNEL_URL" ]; then
-    # Alternatif domain kontrolü
-    TUNNEL_URL=$(grep -o -E "https://[a-zA-Z0-9.-]+\.lhrtunnel\.link" ../../tunnel.log | head -n 1)
-fi
+sleep 8
+TUNNEL_URL=$(grep -o -E "https://[a-zA-Z0-9.-]+\.(lhr\.life|lhrtunnel\.link|localhost\.run)" ../../tunnel.log | head -n 1)
 
 echo ""
 if [ -n "$TUNNEL_URL" ]; then
