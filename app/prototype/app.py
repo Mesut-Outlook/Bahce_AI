@@ -106,25 +106,44 @@ st.markdown("""
 
 
 # Sistem Promptu (Ziraat Mühendisi Rolü)
-SISTEM_PROMPTU = """Sen Adana'da (Akdeniz iklimi) zeytin ve meyve yetiştiriciliği konusunda
-uzman bir ziraat mühendisisin. Sana gönderilen ağaç/yaprak/dal/meyve fotoğrafını incele.
+SISTEM_PROMPTU_SABLONU = """Sen deneyimli bir ziraat mühendisisin. Sana bir bitki/ağaç/yaprak/dal/meyve
+fotoğrafı gönderilecek. Kullanıcı ayrıca bulunduğu konumu ve bitki türünü belirtebilir —
+belirtmemişse fotoğraftan çıkarmaya çalış.
 
-Bağlam: Adana, sıcak-kurak yaz, ılık-yağışlı kış. Zeytin yıllık 650-800 mm su ister,
-yazın sulama gerekir. Bölgede yaygın zeytin sorunları: halkalı leke, dal kanseri,
-antraknoz, verticillium solgunluğu, zeytin sineği, demir eksikliği, su stresi.
+Teşhiste şunları değerlendir:
+- Hastalık (mantar, bakteri, virüs)
+- Zararlı (böcek, akar, vb.)
+- Besin eksikliği (demir, azot, çinko, vb.)
+- Çevresel stres (su stresi, don, sıcak, tuzluluk)
+- Sağlıklı (sorun yok)
 
-Cevabını HER ZAMAN şu iki ana başlıkla, Türkçe ve sade dille ver. HTML etiketleri veya Markdown kullanarak okunabilirliği artır:
+Konum verilmişse önerilerini o bölgenin iklimine ve koşullarına göre uyarla.
+Konum verilmemişse genel geçer öneriler ver.{ek_baglam}
+
+Cevabını HER ZAMAN şu iki ana başlıkla, Türkçe ve sade dille ver:
 
 🔍 TEŞHİS
-- Sorunun ne olduğunu net şekilde belirt (hastalık/zararlı/besin eksikliği/su stresi/sağlıklı).
-- Teşhisin doğruluk güven oranını (%) ve nedenini açıkla.
-- Emin değilsen hangi açılardan yeni fotoğraflar çekilmesi gerektiğini belirt.
+- Tespit ettiğin bitki/ağaç türü (fotoğraftan anlaşılıyorsa)
+- Sorunun ne olduğunu net şekilde belirt (hastalık/zararlı/besin eksikliği/stres/sağlıklı)
+- Teşhisin güven düzeyi (yüksek/orta/düşük) ve nedeni
+- Emin değilsen hangi açılardan ek fotoğraf gerektiğini belirt
 
 ✅ NE YAPMALI
-- Adana koşullarına özel somut ve uygulanabilir çözüm adımları sun (sulama sıklığı, gübreleme, doğru budama teknikleri vb.).
-- Kesin ilaç veya kimyasal gübre dozajları VERME; "İlaç ve kimyasal uygulamalar için kesinlikle Adana İl Tarım ve Orman Müdürlüğü'ne veya bir ziraat mühendisine danışın" notunu ekle.
+- Somut ve uygulanabilir çözüm adımları (sulama/gübre/budama/ilaçlama yaklaşımı)
+- Konum verilmişse o bölgenin tarım otoritesine danışılmasını öner
+- Kesin ilaç veya kimyasal gübre dozajları VERME
 
-Fotoğraf belirsiz veya alakasızsa dürüstçe teşhis koyamayacağını söyle."""
+Fotoğraf belirsiz veya bitki tanınamıyorsa dürüstçe söyle, uydurma."""
+
+
+def sistem_promptu_olustur(konum: str, bitki_turu: str) -> str:
+    ek = []
+    if konum.strip():
+        ek.append(f"Kullanıcının konumu: {konum.strip()}")
+    if bitki_turu.strip():
+        ek.append(f"Kullanıcının belirttiği bitki/ağaç türü: {bitki_turu.strip()}")
+    ek_baglam = ("\n\nEk bağlam:\n" + "\n".join(ek)) if ek else ""
+    return SISTEM_PROMPTU_SABLONU.format(ek_baglam=ek_baglam)
 
 def get_base64_image(image_bytes):
     return base64.b64encode(image_bytes).decode("utf-8")
@@ -146,8 +165,14 @@ def count_labeled_images():
 
 # --- YAN PANEL (SIDEBAR) ---
 with st.sidebar:
-    st.markdown("<h2 style='text-align: center;'>🫒 Bahçe AI</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #a0b0a0;'>Adana Zeytin & Meyve Sağlığı Teşhis Sistemi</p>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center;'>🌿 Bahçe AI</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #a0b0a0;'>Bitki & Ağaç Sağlığı Teşhis Sistemi</p>", unsafe_allow_html=True)
+    st.markdown("---")
+
+    st.subheader("📍 Konum & Bitki")
+    konum = st.text_input("Konum (isteğe bağlı)", placeholder="örn: Adana, Amsterdam, Mersin...")
+    bitki_turu = st.text_input("Bitki / Ağaç Türü (isteğe bağlı)", placeholder="örn: zeytin, elma, nar, incir...")
+    st.caption("Konum girilirse iklime özel öneri alırsın. Boş bırakırsan fotoğraftan anlar.")
     st.markdown("---")
     
     # Model/API Sağlayıcı Seçimi
@@ -197,8 +222,8 @@ with st.sidebar:
         st.info("Henüz etiketlenmiş görsel yok. Çekilen fotoğrafları `data/labeled/` klasörüne yerleştirin.")
 
 # --- ANA SAYFA ---
-st.markdown("<h1 style='text-align: center; margin-bottom: 5px;'>🫒 Yaprak & Ağaç Teşhis Prototipi</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #a0b0a0; font-size: 1.1rem; margin-bottom: 30px;'>Fotoğraf yükleyin, yapay zeka anında Adana iklim koşullarına göre teşhis ve reçete çıkarsın.</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; margin-bottom: 5px;'>🌿 Yaprak & Ağaç Teşhis Prototipi</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #a0b0a0; font-size: 1.1rem; margin-bottom: 30px;'>Fotoğraf yükleyin, konumunuzu girin — yapay zeka anında teşhis ve öneri çıkarsın.</p>", unsafe_allow_html=True)
 
 col_left, col_right = st.columns([1, 1])
 
@@ -231,19 +256,20 @@ with col_right:
                 result_text = ""
                 
                 # --- OPENAI API ANALİZ ---
+                aktif_prompt = sistem_promptu_olustur(konum, bitki_turu)
+
                 if "OpenAI" in provider and openai_key:
                     try:
                         from openai import OpenAI
                         client = OpenAI(api_key=openai_key)
-                        
+
                         base64_image = get_base64_image(image_to_analyze)
-                        
-                        # API'yi çağır
+
                         response = client.chat.completions.create(
                             model="gpt-4o",
                             max_tokens=1024,
                             messages=[
-                                {"role": "system", "content": SISTEM_PROMPTU},
+                                {"role": "system", "content": aktif_prompt},
                                 {
                                     "role": "user",
                                     "content": [
@@ -253,7 +279,7 @@ with col_right:
                                         },
                                         {
                                             "type": "text",
-                                            "text": "Bu zeytin/meyve yaprağını/ağacını incele. Teşhis ve Adana koşullarına uygun öneri sun.",
+                                            "text": "Bu bitkinin/ağacın durumunu değerlendir. Teşhis ve öneri ver.",
                                         },
                                     ],
                                 },
@@ -263,20 +289,19 @@ with col_right:
                         analysis_success = True
                     except Exception as e:
                         st.error(f"OpenAI API Hatası: {e}")
-                
+
                 # --- ANTHROPIC CLAUDE API ANALİZ ---
                 elif "Anthropic" in provider and anthropic_key:
                     try:
                         from anthropic import Anthropic
                         client = Anthropic(api_key=anthropic_key)
-                        
+
                         base64_image = get_base64_image(image_to_analyze)
-                        
-                        # API'yi çağır
+
                         response = client.messages.create(
-                            model="claude-3-5-sonnet-20241022",
+                            model="claude-sonnet-4-6",
                             max_tokens=1024,
-                            system=SISTEM_PROMPTU,
+                            system=aktif_prompt,
                             messages=[
                                 {
                                     "role": "user",
@@ -291,7 +316,7 @@ with col_right:
                                         },
                                         {
                                             "type": "text",
-                                            "text": "Bu zeytin/meyve yaprağını/ağacını incele. Teşhis ve Adana koşullarına uygun öneri sun."
+                                            "text": "Bu bitkinin/ağacın durumunu değerlendir. Teşhis ve öneri ver."
                                         }
                                     ],
                                 }
@@ -319,4 +344,4 @@ with col_right:
 
 # Sayfa Altı Bilgisi
 st.markdown("---")
-st.markdown("<p style='text-align: center; color: #607060; font-size: 0.85rem;'>Zeytin & Meyve Bahçesi AI — Faz 0 Web Prototipi. Adana Akdeniz İklimi için optimize edilmiştir.</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #607060; font-size: 0.85rem;'>Bahçe AI — Faz 0 Web Prototipi. Her konum ve bitki türü için çalışır.</p>", unsafe_allow_html=True)
