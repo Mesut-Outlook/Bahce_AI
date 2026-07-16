@@ -9,7 +9,7 @@ Sırayla şunları yap:
 
 1. **Tarımsal doğrulama:** `tarim-uzmani` agent'ını çağır. Bu sınıfın belirtilerini,
    görsel görünümünü, hangi mevsimde/parçada görüldüğünü ve diğer sınıflarla karışma
-   riskini tarif ettir. Adana koşullarına uygun "ne yapmalı" önerisini al.
+   riskini tarif ettir. Bölgesel koşullara uygun "ne yapmalı" önerisini al.
 
 2. **Katalog güncelle:** `docs/05-hastalik-katalogu.md`'ye yeni sınıfı standart formatta
    ekle (ad, belirtiler, fotoğrafta görünüm, öneri, karışabileceği sınıflar).

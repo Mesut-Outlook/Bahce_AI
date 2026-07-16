@@ -28,7 +28,7 @@ Eğitilmiş model beklemeden BUGÜN çalışan bir araç. `app/prototype/` altı
 ## Tasarım kuralları
 
 - Arayüz olabildiğince basit: tek buton "Fotoğraf yükle", tek sonuç ekranı.
-- Çıktı her zaman iki parça: (1) ne sorun var, (2) ne yapmalı (Adana koşullarına göre).
+- Çıktı her zaman iki parça: (1) ne sorun var, (2) ne yapmalı (kullanıcının konumuna göre bölgesel; konum yoksa genel).
 - Düşük güven durumunda "emin değilim, şu açıdan bir fotoğraf daha çek" de.
 - İnternet olmayan bahçe için offline mod önemli → Aşama 2'de TFLite önceliği.
 - Türkçe arayüz, sade dil, çiftçinin anlayacağı terimler.

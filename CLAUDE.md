@@ -30,10 +30,19 @@ Mesut uygulamayı **Adana, Mersin ve Amsterdam'da** kullanıyor.
 ## Uygulama özellikleri
 
 - Konum + bitki türü → ana sayfada, isteğe bağlı
-- Birden fazla fotoğraf yükleme (hepsi GPT-4o'ya gönderilir)
+- Birden fazla fotoğraf yükleme (hepsi seçili modele gönderilir)
 - Teşhis sonrası **ek fotoğraf** ekleyerek aynı konudan devam
 - Teşhis sonrası **ağaç tanıtımı** (sulama takvimi, hasat, yaygın hastalıklar)
-- OpenAI GPT-4o veya Anthropic Claude Sonnet (sidebar'dan seçim)
+- Teşhis sonrası **"Yeni Arama Başlat"** butonu → fotoğrafları, konum/bitki alanlarını
+  ve raporu tek tıkla sıfırlar
+- Sağlayıcı seçimi: OpenAI (ChatGPT), Anthropic Claude Sonnet veya Google Gemini
+  (sidebar'dan seçim). OpenAI seçilince hesapta kullanıma açık **tüm ChatGPT
+  modelleri** `/models` uç noktasından dinamik çekilip listelenir (görsel üretim/ses/
+  arama/kod modelleri filtrelenir); varsayılan `gpt-5.6-terra`.
+- Açık tema `.streamlit/config.toml` (kök ve `app/prototype/`) ile sabitlenmiştir —
+  ziyaretçinin sistem/tarayıcı koyu mod tercihine bakılmaksızın açık yeşil-krem
+  palet kullanılır. Bu dosya `.gitignore`'da istisna tutulur (`secrets.toml` ve
+  `credentials.toml` hâlâ hariç tutulur, asla commit edilmez).
 
 ## Klasör yapısı
 
@@ -44,16 +53,19 @@ Bahce_AI/
 ├── requirements.txt
 ├── .env.example
 ├── .gitignore
+├── .streamlit/config.toml  # Açık tema (Streamlit Cloud bunu okur)
 ├── app/
 │   └── prototype/
 │       ├── app.py          # Ana Streamlit uygulaması
 │       ├── analyze.py      # CLI versiyonu
-│       └── web.py          # Flask versiyonu (port 5000)
+│       ├── web.py          # Flask versiyonu (port 5000)
+│       └── .streamlit/config.toml  # Açık tema (yerel çalıştırma için)
 ├── scripts/
 │   ├── start_app.sh        # Tek komutla başlatıcı
 │   ├── check_dataset.py
 │   ├── prepare_data.py
-│   └── download_inaturalist.py
+│   ├── download_inaturalist.py
+│   └── train.py            # PyTorch/MobileNetV2 eğitim script'i (Faz 3)
 ├── data/
 │   ├── raw/
 │   ├── labeled/            # Sınıf klasörleri: agac-turu_durum
@@ -73,10 +85,10 @@ Bahce_AI/
 
 ## Fazlar
 
-- **Faz 0 ✓:** GPT-4o vision ile web prototipi (aktif, Streamlit Cloud'da yayında)
+- **Faz 0 ✓:** ChatGPT (GPT-5.6) vision ile web prototipi (aktif, Streamlit Cloud'da yayında)
 - **Faz 1:** Fotoğraf toplama (sınıf başına 100–200)
 - **Faz 2:** Etiketleme
-- **Faz 3:** Transfer learning, %85+ doğruluk
+- **Faz 3:** Transfer learning (PyTorch/MobileNetV2, `scripts/train.py` hazır), %85+ doğruluk hedefi
 - **Faz 4:** Offline telefon/web uygulaması
 
 ## Kod standartları

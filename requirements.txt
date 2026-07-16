@@ -1,6 +1,7 @@
-# Faz 0 — Prototip (Claude & OpenAI API)
+# Faz 0 — Prototip (Claude, OpenAI & Gemini API)
 anthropic>=0.40.0
 openai>=1.0.0
+google-generativeai>=0.8.0
 streamlit>=1.30.0
 python-dotenv>=1.0.0
 requests>=2.31.0
@@ -10,10 +11,10 @@ requests>=2.31.0
 pillow>=10.0.0
 scikit-learn>=1.3.0
 
-# Model eğitimi (model-egitim agent'ı framework seçince netleşir)
-# tensorflow>=2.15.0
-# torch>=2.1.0
-# torchvision>=0.16.0
+# Model eğitimi (PyTorch — transfer learning ile MobileNetV2, scripts/train.py)
+torch>=2.1.0
+torchvision>=0.16.0
+matplotlib>=3.8.0
 
 # Web uygulaması (Faz 4 - opsiyonel)
 # streamlit>=1.30.0

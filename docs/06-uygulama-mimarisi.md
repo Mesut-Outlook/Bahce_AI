@@ -2,16 +2,16 @@
 
 İki aşamalı: önce Claude API ile hızlı prototip, sonra kendi modelinle kalıcı uygulama.
 
-## Aşama 1 — Prototip (Claude & OpenAI API - Tamamlandı ✅)
+## Aşama 1 — Prototip (Claude, OpenAI & Gemini API - Tamamlandı ✅)
 
 Veri toplamadan ve model eğitmeden BUGÜN çalışan sürükle-bırak destekli görsel teşhis web ve CLI uygulaması.
 
 ```
-Kullanıcı fotoğrafı (Web/Mobil)  →  Streamlit (app.py)  →  GPT-4o / Claude 3.5  →  Türkçe Teşhis + Adana Önerisi
+Kullanıcı fotoğrafı (Web/Mobil)  →  Streamlit (app.py)  →  ChatGPT (GPT-5.6) / Claude Sonnet / Gemini  →  Türkçe Teşhis + Bölgesel Öneri
 ```
 
 ### Sunulan Altyapı ve Özellikler:
-*   **Web Prototipi (`app/prototype/app.py`):** Koyu orman yeşili paletine sahip, modern ve sade tasarımlı premium web arayüzü. OpenAI (GPT-4o) ve Anthropic (Claude 3.5) API'lerinin ikisini de destekler (`.env` dosyasındaki aktif anahtara göre otomatik algılar).
+*   **Web Prototipi (`app/prototype/app.py`):** Açık yeşil-krem paletine sahip, modern, "app hissi" veren, sekmeli (Teşhis & Tedavi / Bitki Kılavuzu / Ek Fotoğraf Ekle) web arayüzü. Tema `.streamlit/config.toml` ile açık modda sabitlenir. OpenAI (ChatGPT), Anthropic (Claude Sonnet) ve Google (Gemini) API'lerinin üçünü de destekler (`.env` dosyasındaki aktif anahtara göre otomatik algılar). OpenAI seçilince hesapta kullanılabilir tüm ChatGPT modelleri `/models` uç noktasından dinamik listelenir (varsayılan `gpt-5.6-terra`). Teşhis sonrası "Yeni Arama Başlat" butonu tüm formu ve raporu sıfırlar.
 *   **CLI Analiz Aracı (`app/prototype/analyze.py`):** Terminal üzerinden görsel vererek hızlı teşhis yapmayı sağlayan komut satırı aracı.
 *   **Canlı Veri Takip Modülü:** Web arayüzünün sol panelinde projenin güncel veri toplama sayılarını (`data/labeled/` altındaki görsel dağılımlarını) canlı gösterir.
 *   **Headless Başlatıcı ve Mobil Tünel Sistemi (`scripts/start_app.sh`):**

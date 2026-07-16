@@ -1,9 +1,12 @@
 # 🫒 Zeytin & Meyve Bahçesi AI
 
-Adana'daki bahçede bulunan zeytin ve meyve ağaçlarının fotoğraflarından **hastalık,
-zararlı, besin eksikliği ve su stresini** tespit eden yapay zeka aracı.
+Zeytin ve meyve ağaçlarının fotoğraflarından **hastalık, zararlı, besin eksikliği ve
+su stresini** tespit eden yapay zeka aracı. Herhangi bir konum ve bitki türü için
+çalışır (Mesut şu an Adana, Mersin ve Amsterdam'daki bahçelerinde kullanıyor).
 
 > Fotoğraf çek → AI analiz etsin → "Ağacın neye ihtiyacı var" cevabını al.
+
+🌐 **Canlı uygulama:** [bahceai.streamlit.app](https://bahceai.streamlit.app)
 
 ---
 
@@ -35,14 +38,14 @@ Sonra şunları deneyebilirsin:
 | `data/raw/` | Çektiğin ham fotoğraflar buraya |
 | `data/labeled/` | Etiketlenmiş fotoğraflar (sınıf klasörleri) |
 | `models/` | Eğitilmiş modeller |
-| `app/prototype/` | Bugün çalışan hızlı analiz web & CLI prototipleri (OpenAI & Claude API) |
+| `app/prototype/` | Bugün çalışan hızlı analiz web & CLI prototipleri (OpenAI, Claude & Gemini API) |
 | `scripts/` | Veri hazırlama, API'den otomatik indirme ve sunucu başlatıcı araçları |
 | `.claude/agents/` | 5 uzman sub-agent |
 | `.claude/commands/` | Hazır workflow'lar (slash komutları) |
 
 ## 🗺️ Yol haritası
 
-1. **Faz 0 — Prototip (Tamamlandı ✅):** `app/prototype/` altında sürükle-bırak destekli, OpenAI & Claude entegrasyonlu Streamlit web arayüzü ve tünel sistemi hazırlandı. Streamlit Cloud yayınına uyumlu hale getirildi.
+1. **Faz 0 — Prototip (Tamamlandı ✅):** `app/prototype/` altında sürükle-bırak destekli, OpenAI, Claude & Gemini entegrasyonlu Streamlit web arayüzü ve tünel sistemi hazırlandı. Streamlit Cloud yayınına uyumlu hale getirildi.
 2. **Faz 1 — Veri toplama (sezon boyu):** `docs/02-veri-toplama-rehberi.md` ve `scripts/download_inaturalist.py` kullanarak veri topla.
 3. **Faz 2 — Etiketleme:** `docs/03-etiketleme-standardi.md`'ye göre etiketle.
 4. **Faz 3 — Model eğitimi:** Transfer learning ile kendi modelini eğit.
@@ -63,8 +66,11 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Claude API prototipi için anahtarını `.env` dosyasına koy:
+Yapay Zeka API prototipi için anahtarını `.env` dosyasına koy (istediğin modelleri kullanabilirsin):
 
 ```bash
-echo "ANTHROPIC_API_KEY=sk-ant-..." > .env
+# OpenAI, Anthropic ve Google Gemini API anahtarlarından en az birini ekle
+echo "OPENAI_API_KEY=sk-..." >> .env
+echo "ANTHROPIC_API_KEY=sk-ant-..." >> .env
+echo "GEMINI_API_KEY=AQ..." >> .env
 ```

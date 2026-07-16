@@ -33,7 +33,8 @@ fotoğraflarından zeytin/meyve sağlık durumunu sınıflandıran bir model eğ
 
 ## Teknik kurallar
 
-- Framework: TensorFlow/Keras veya PyTorch — projede tek birini tut, karıştırma.
+- Framework: **PyTorch** (karar verildi — bkz. `scripts/train.py`, MobileNetV2 transfer
+  learning). Projede tek framework'ü tut, karıştırma.
 - Küçük veri = overfitting riski. Augmentation, dropout, early stopping kullan.
 - Az fotoğraflı sınıf varsa class weighting uygula (etiketleme agent'ından dağılımı al).
 - Her eğitimi yeniden üretilebilir kıl: seed sabitle, parametreleri kaydet.
