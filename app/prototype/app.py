@@ -607,7 +607,7 @@ def openai_cagir(prompt: str, icerik: list, api_key: str) -> str:
     client = OpenAI(api_key=api_key)
     yanit = client.chat.completions.create(
         model="gpt-5.6",
-        max_tokens=1200,
+        max_completion_tokens=1200,
         messages=[
             {"role": "system", "content": prompt},
             {"role": "user", "content": icerik},

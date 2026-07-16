@@ -76,7 +76,7 @@ def analiz_et(fotograf_yolu: str):
     print("Analiz ediliyor...\n")
     yanit = client.chat.completions.create(
         model="gpt-5.6",
-        max_tokens=1024,
+        max_completion_tokens=1024,
         messages=[
             {"role": "system", "content": SISTEM_PROMPTU},
             {

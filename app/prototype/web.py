@@ -194,7 +194,7 @@ def ana_sayfa():
                     client = OpenAI(api_key=api_key)
                     yanit = client.chat.completions.create(
                         model="gpt-5.6",
-                        max_tokens=1024,
+                        max_completion_tokens=1024,
                         messages=[
                             {"role": "system", "content": sistem_promptu_olustur(konum, agac_turu)},
                             {
