@@ -30,5 +30,10 @@ Thumbs.db
 
 # Logs and temp files
 *.log
-.streamlit/
+
+# Streamlit yerel sırları — config.toml (tema) repoya girer, gizli bilgiler girmez
+.streamlit/secrets.toml
+.streamlit/credentials.toml
+app/prototype/.streamlit/secrets.toml
+app/prototype/.streamlit/credentials.toml
 
