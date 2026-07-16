@@ -151,7 +151,7 @@ st.markdown("""
     }
 
     /* Diagnostic Results Card */
-    .diagnosis-card {
+    .diagnosis-card, .st-key-teshis_karti {
         background: rgba(255, 255, 255, 0.78) !important;
         border: 1px solid rgba(16, 185, 129, 0.2) !important;
         border-radius: 22px !important;
@@ -305,7 +305,7 @@ st.markdown("""
             padding-left: 1rem !important;
             padding-right: 1rem !important;
         }
-        .glass-card, .diagnosis-card {
+        .glass-card, .diagnosis-card, .st-key-teshis_karti {
             padding: 16px !important;
             border-radius: 18px !important;
         }
@@ -491,23 +491,21 @@ def gorsel_rapor_olustur(result_text: str):
         </div>
         """
         
-    st.markdown(f"""
-    <div class="diagnosis-card">
+    with st.container(key="teshis_karti"):
+        st.markdown(f"""
         {badge_html}
         {conf_html}
         <div class="diagnosis-header">🔍 Teşhis Raporu</div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown(diag if diag else result_text)
-    
-    if recs:
-        st.markdown(f"""
-        <hr style="border-color: rgba(46, 117, 89, 0.2); margin: 20px 0;">
-        <div class="rec-header">✅ Uygulanacak Çözüm Önerileri</div>
         """, unsafe_allow_html=True)
-        st.markdown(recs)
-        
-    st.markdown("</div>", unsafe_allow_html=True)
+
+        st.markdown(diag if diag else result_text)
+
+        if recs:
+            st.markdown(f"""
+            <hr style="border-color: rgba(46, 117, 89, 0.2); margin: 20px 0;">
+            <div class="rec-header">✅ Uygulanacak Çözüm Önerileri</div>
+            """, unsafe_allow_html=True)
+            st.markdown(recs)
 
 # ── Sistem promptları ────────────────────────────────────────────────────────
 
@@ -602,7 +600,7 @@ def gorsel_icerik_olustur(dosyalar: list) -> list:
     return icerik
 
 
-OPENAI_VARSAYILAN_MODEL = "gpt-5.6"
+OPENAI_VARSAYILAN_MODEL = "gpt-5.6-terra"
 
 # OpenAI /models uç noktası; sohbet/görsel analiz için uygun olmayan
 # modelleri (görsel üretim, ses, arama, kod, embedding vb.) elemek için
@@ -707,6 +705,7 @@ for key, default in [
     ("tanitim_goster", False),
     ("tanitim_metni", None),
     ("ek_mod", False),
+    ("arama_versiyonu", 0),
 ]:
     if key not in st.session_state:
         st.session_state[key] = default
@@ -753,9 +752,7 @@ with st.sidebar:
         except Exception:
             openai_modelleri = []
         if openai_modelleri:
-            # "gpt-5.6" bir takma addır (models.list() çıktısında bulunmaz);
-            # somut karşılığı "gpt-5.6-sol" listede varsa onu varsayılan seç.
-            tercih_sirasi = [OPENAI_VARSAYILAN_MODEL, "gpt-5.6-sol"]
+            tercih_sirasi = [OPENAI_VARSAYILAN_MODEL, "gpt-5.6-sol", "gpt-5.6-luna"]
             varsayilan_model = next((m for m in tercih_sirasi if m in openai_modelleri), None)
             varsayilan_index = openai_modelleri.index(varsayilan_model) if varsayilan_model else 0
             openai_model = st.selectbox(
@@ -817,10 +814,12 @@ st.markdown("<div class='glass-card' style='padding: 20px !important; margin-bot
 c1, c2 = st.columns(2)
 with c1:
     konum = st.text_input("📍 Konum (İsteğe Bağlı)", placeholder="örn: Adana, Amsterdam, Mersin...",
-                           help="Bölgesel iklim ve toprak koşullarına özel öneriler almak için girin.")
+                           help="Bölgesel iklim ve toprak koşullarına özel öneriler almak için girin.",
+                           key=f"konum_input_{st.session_state.arama_versiyonu}")
 with c2:
     bitki = st.text_input("🌱 Bitki / Ağaç Türü (İsteğe Bağlı)", placeholder="örn: zeytin, elma, nar, incir...",
-                           help="Boş bırakırsanız yapay zeka fotoğraftan bitkiyi tespit etmeye çalışacaktır.")
+                           help="Boş bırakırsanız yapay zeka fotoğraftan bitkiyi tespit etmeye çalışacaktır.",
+                           key=f"bitki_input_{st.session_state.arama_versiyonu}")
 st.markdown("</div>", unsafe_allow_html=True)
 
 # Sekmeli Bölüm Yapısı (TABS)
@@ -837,6 +836,7 @@ with tab1:
             "Yaprak, dal, meyve veya gövde fotoğrafları:",
             type=["jpg", "jpeg", "png", "webp"],
             accept_multiple_files=True,
+            key=f"foto_yukleyici_{st.session_state.arama_versiyonu}",
         )
         
         if yuklu_dosyalar:
@@ -875,6 +875,14 @@ with tab1:
         if st.session_state.teshis_sonucu:
             # Teşhisi şık arayüzde göster
             gorsel_rapor_olustur(st.session_state.teshis_sonucu)
+            st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+            if st.button("🔄 Yeni Arama Başlat", key="yeni_arama_btn", use_container_width=True):
+                st.session_state.teshis_sonucu = None
+                st.session_state.konum_teshis = ""
+                st.session_state.bitki_turu_teshis = ""
+                st.session_state.tanitim_metni = None
+                st.session_state.arama_versiyonu += 1
+                st.rerun()
         else:
             st.info("Fotoğrafları yükleyip 'Teşhis Et' butonuna bastıktan sonra raporunuz burada görünecektir.")
 
