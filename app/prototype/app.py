@@ -602,11 +602,37 @@ def gorsel_icerik_olustur(dosyalar: list) -> list:
     return icerik
 
 
-def openai_cagir(prompt: str, icerik: list, api_key: str) -> str:
+OPENAI_VARSAYILAN_MODEL = "gpt-5.6"
+
+# OpenAI /models uç noktası; sohbet/görsel analiz için uygun olmayan
+# modelleri (görsel üretim, ses, arama, kod, embedding vb.) elemek için
+# kullanılan anahtar kelimeler.
+_OPENAI_HARIC_ANAHTAR = (
+    "embedding", "whisper", "tts", "audio", "realtime", "moderation",
+    "dall-e", "image", "transcribe", "search", "computer-use", "codex",
+    "instruct", "davinci", "babbage", "curie", "ada",
+)
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def openai_modelleri_getir(api_key: str) -> list:
+    """OpenAI hesabında kullanıma açık sohbet/görsel modellerini API'den çeker."""
+    from openai import OpenAI
+    client = OpenAI(api_key=api_key)
+    modeller = client.models.list()
+    uygun = [
+        m.id for m in modeller.data
+        if m.id.startswith("gpt-")
+        and not any(k in m.id.lower() for k in _OPENAI_HARIC_ANAHTAR)
+    ]
+    return sorted(set(uygun), reverse=True)
+
+
+def openai_cagir(prompt: str, icerik: list, api_key: str, model: str = OPENAI_VARSAYILAN_MODEL) -> str:
     from openai import OpenAI
     client = OpenAI(api_key=api_key)
     yanit = client.chat.completions.create(
-        model="gpt-5.6",
+        model=model,
         max_completion_tokens=1200,
         messages=[
             {"role": "system", "content": prompt},
@@ -661,10 +687,11 @@ def gemini_cagir(prompt: str, dosya_verileri: list, api_key: str) -> str:
 
 
 def analiz_yap(prompt: str, dosya_verileri: list, provider: str,
-               openai_key: str, anthropic_key: str, gemini_key: str = None):
+               openai_key: str, anthropic_key: str, gemini_key: str = None,
+               openai_model: str = OPENAI_VARSAYILAN_MODEL):
     icerik = gorsel_icerik_olustur(dosya_verileri)
     if "OpenAI" in provider and openai_key:
-        return openai_cagir(prompt, icerik, openai_key)
+        return openai_cagir(prompt, icerik, openai_key, openai_model)
     elif "Anthropic" in provider and anthropic_key:
         return anthropic_cagir(prompt, icerik, anthropic_key)
     elif "Google" in provider and gemini_key:
@@ -697,7 +724,7 @@ with st.sidebar:
 
     provider_options = []
     if openai_key:
-        provider_options.append("OpenAI (GPT-5.6)")
+        provider_options.append("OpenAI (ChatGPT)")
     if anthropic_key:
         provider_options.append("Anthropic (Claude Sonnet)")
     if gemini_key:
@@ -709,7 +736,7 @@ with st.sidebar:
         custom_key = st.text_input("API Key", type="password")
         if secim == "OpenAI":
             openai_key = custom_key
-            provider_options = ["OpenAI (GPT-5.6)"]
+            provider_options = ["OpenAI (ChatGPT)"]
         elif secim == "Anthropic":
             anthropic_key = custom_key
             provider_options = ["Anthropic (Claude Sonnet)"]
@@ -718,6 +745,27 @@ with st.sidebar:
             provider_options = ["Google (Gemini 1.5 Flash)"]
             
     provider = st.selectbox("Model Seçimi", provider_options) if provider_options else ""
+
+    openai_model = OPENAI_VARSAYILAN_MODEL
+    if provider and "OpenAI" in provider and openai_key:
+        try:
+            openai_modelleri = openai_modelleri_getir(openai_key)
+        except Exception:
+            openai_modelleri = []
+        if openai_modelleri:
+            # "gpt-5.6" bir takma addır (models.list() çıktısında bulunmaz);
+            # somut karşılığı "gpt-5.6-sol" listede varsa onu varsayılan seç.
+            tercih_sirasi = [OPENAI_VARSAYILAN_MODEL, "gpt-5.6-sol"]
+            varsayilan_model = next((m for m in tercih_sirasi if m in openai_modelleri), None)
+            varsayilan_index = openai_modelleri.index(varsayilan_model) if varsayilan_model else 0
+            openai_model = st.selectbox(
+                "ChatGPT Modeli",
+                openai_modelleri,
+                index=varsayilan_index,
+                help="Hesabınızda kullanıma açık tüm ChatGPT modelleri — API sorgusunda seçileni kullanırız.",
+            )
+        else:
+            st.caption(f"⚠️ Model listesi alınamadı, varsayılan '{OPENAI_VARSAYILAN_MODEL}' kullanılacak.")
 
     # Bahçe Veri Seti Özeti (Görsel İlerleme Çubuklu)
     st.markdown("---")
@@ -814,7 +862,7 @@ with tab1:
                 prompt = TESHIS_PROMPTU.format(ek_baglam=ek_baglam_olustur(konum, bitki))
                 with st.spinner("Analiz ediliyor..."):
                     try:
-                        sonuc = analiz_yap(prompt, dosya_verileri, provider, openai_key, anthropic_key, gemini_key)
+                        sonuc = analiz_yap(prompt, dosya_verileri, provider, openai_key, anthropic_key, gemini_key, openai_model)
                         if sonuc:
                             st.session_state.teshis_sonucu = sonuc
                             st.session_state.konum_teshis = konum
@@ -853,7 +901,7 @@ with tab2:
                     try:
                         icerik = [{"type": "text", "text": f"{bitki_adi} hakkında detaylı bilgi ver."}]
                         if "OpenAI" in provider and openai_key:
-                            st.session_state.tanitim_metni = openai_cagir(prompt, icerik, openai_key)
+                            st.session_state.tanitim_metni = openai_cagir(prompt, icerik, openai_key, openai_model)
                         elif "Anthropic" in provider and anthropic_key:
                             st.session_state.tanitim_metni = anthropic_cagir(prompt, icerik, anthropic_key)
                         elif "Google" in provider and gemini_key:
@@ -903,7 +951,7 @@ with tab3:
                 )
                 with st.spinner("Ek fotoğraflarla yeniden değerlendiriliyor..."):
                     try:
-                        yeni_sonuc = analiz_yap(prompt, ek_verileri, provider, openai_key, anthropic_key, gemini_key)
+                        yeni_sonuc = analiz_yap(prompt, ek_verileri, provider, openai_key, anthropic_key, gemini_key, openai_model)
                         if yeni_sonuc:
                             st.session_state.teshis_sonucu = yeni_sonuc
                             st.session_state.tanitim_metni = None # Sıfırla
